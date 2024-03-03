@@ -1,0 +1,4 @@
+short_name,real_name
+xccy,InterestRate:CrossCurrency:
+irswap,InterestRate:IRSwap:
+option,InterestRate:Option:
