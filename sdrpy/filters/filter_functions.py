@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import date
 from sdrpy.utils.util_functions import *
 
-def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", maturity="m>3", date_range="-1d"):
+def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", maturity="m>3", date_range="-1d",dv01_min=None):
     if currencies is not None :
       
         df = filter_by_currency(df, currencies)
@@ -15,6 +15,8 @@ def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", matu
         df = filter_maturity(df, maturity)
     if date_range!=None:
         df = filter_date_range(df, date_range)
+    if dv01_min!=None:
+        df=df[df["dv01"]>=dv01_min]
     return df
 
 def filter_product(df, product, product_type):
