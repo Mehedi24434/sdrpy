@@ -1,20 +1,20 @@
 import pandas as pd
+from datetime import date
 from sdrpy.utils.util_functions import *
 
 def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", maturity="m>3", date_range="-1d"):
     if currencies is not None :
-        if len(currencies) > 1:
-            df = filter_by_currency(df, *currencies)
-        else:     
-            df = filter_currency(df, currencies)
-    print('currency filter returns;', len(df))
+      
+        df = filter_by_currency(df, currencies)
+       
+ 
     if product!=None or product_type!=None:
         df = filter_product(df, product, product_type)
-    print('product filter returns;', len(df))
+
     if maturity!=None:
         df = filter_maturity(df, maturity)
-    #if date_range!=None:
-        #df = filter_date_range(df, date_range)
+    if date_range!=None:
+        df = filter_date_range(df, date_range)
     return df
 
 def filter_product(df, product, product_type):
@@ -74,3 +74,14 @@ def filter_maturity(df, maturity_conditions):
 
       overlap_df = pd.concat([low_df5, hi_df5], ignore_index=True).drop_duplicates()
   return overlap_df
+
+
+def filter_date_range(df, date_range):
+    duration = total_req_duration(df,date_range)
+    df = df.loc[:, ~df.columns.duplicated()] ###remove previously duplecated columns
+    today = date.today()
+    df["Date"] = pd.to_datetime(df["Date"])
+    today_timestamp = pd.Timestamp(today)
+    df["Day_diff"]=today_timestamp - df["Date"]
+    df=df[df["Day_diff"]<=pd.Timedelta(days=duration)]
+    return df

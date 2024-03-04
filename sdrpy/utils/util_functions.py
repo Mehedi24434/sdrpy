@@ -73,3 +73,21 @@ def custom_merge(left, right, on, how='inner'):
   merged_df = left.merge(right.copy(), on=on, how=how, suffixes=('', '_r'))
   merged_df.columns = [col.rstrip('_r') for col in merged_df.columns]
   return merged_df
+
+
+def total_req_duration(df, date_range):
+    duration= date_range[-1]
+    if duration=="d":
+        mult=1
+    elif duration=="w":
+        mult=7
+    elif duration=="m":
+        mult=30
+    elif duration=="y":
+        mult=365
+    else:
+        mult=1
+    match = re.match(r'-([0-9]+)', date_range)
+    num = int(match.group(1))
+    total_duration =num*mult
+    return total_duration
