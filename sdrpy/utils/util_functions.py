@@ -91,3 +91,21 @@ def total_req_duration(df, date_range):
     num = int(match.group(1))
     total_duration =num*mult
     return total_duration
+
+
+def conversion_rate(currency: str):
+    if currency == "CLF":
+        return 0.026
+    if currency == "USD":
+        return 1
+    else:
+        conversion_df = pd.read_csv("./currency_conversion.csv", index_col=0)
+        rate = conversion_df.loc[currency]["conversion_rates"]
+        return rate
+    
+def calculate_usd_notional(row):
+    rate1 = conversion_rate(row['Notional currency-Leg 1'])
+    rate2 = conversion_rate(row['Notional currency-Leg 2'])
+    usd_notional_leg1 = (row['Notional amount-Leg 1 mm']*1000000) / rate1
+    usd_notional_leg2 = (row['Notional amount-Leg 2 mm']*1000000) / rate2
+    return pd.Series({'USD_notional_leg1': usd_notional_leg1, 'USD_notional_leg2': usd_notional_leg2})

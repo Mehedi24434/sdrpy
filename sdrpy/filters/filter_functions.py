@@ -17,6 +17,7 @@ def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", matu
         df = filter_date_range(df, date_range)
     if dv01_min!=None:
         df=df[df["dv01"]>=dv01_min]
+    df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
     return df
 
 def filter_product(df, product, product_type):
