@@ -1,9 +1,10 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from datetime import date
 from sdrpy.utils.util_functions import *
 
-def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", maturity="m>3", date_range="-1d",dv01_min=None):
-    if currencies is not None :
+def get_trades (df, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
+    if currencies != None :
       
         df = filter_by_currency(df, currencies)
        
@@ -18,6 +19,8 @@ def get_trades (df, product="xccy", product_type="Basis", currencies="CAD", matu
     if dv01_min!=None:
         df=df[df["dv01"]>=dv01_min]
     df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+    if usd_notional_min!=None:
+        df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
     return df
 
 def filter_product(df, product, product_type):
@@ -88,3 +91,31 @@ def filter_date_range(df, date_range):
     df["Day_diff"]=today_timestamp - df["Date"]
     df=df[df["Day_diff"]<=pd.Timedelta(days=duration)]
     return df
+
+def plot_notional_comparison(df,currencies):
+    main_df=df
+    if currencies != None :
+      
+        df = filter_by_currency(df, currencies)
+    avg=main_df["USD_notional_leg1"].sum()/len(main_df["USD_notional_leg1"])
+    notional_values = []
+
+    # Assuming you have a DataFrame 'df' containing your data
+    for index, row in df.iterrows():
+        currency = currencies  # Specify the currency you want to search for
+        leg = find_leg(currency, row['Notional currency-Leg 1'], row['Notional currency-Leg 2'])
+        if leg == 'Leg 1':
+            notional_values.append(row['USD_notional_leg1'])
+        elif leg == 'Leg 2':
+            notional_values.append(row['USD_notional_leg2'])
+    
+   
+    # Plotting
+    plt.bar(range(len(notional_values)), notional_values, color='blue', label=f'{currencies} Notional')
+    plt.axhline(y=avg, color='red', linestyle='--', label='Average Notional')
+    plt.xlabel('Data Points')
+    plt.ylabel('Value')
+    plt.title('Comparison of Values to Average')
+    plt.legend()
+    plt.show()
+    

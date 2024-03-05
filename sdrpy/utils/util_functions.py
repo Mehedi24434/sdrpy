@@ -109,3 +109,11 @@ def calculate_usd_notional(row):
     usd_notional_leg1 = (row['Notional amount-Leg 1 mm']*1000000) / rate1
     usd_notional_leg2 = (row['Notional amount-Leg 2 mm']*1000000) / rate2
     return pd.Series({'USD_notional_leg1': usd_notional_leg1, 'USD_notional_leg2': usd_notional_leg2})
+
+def find_leg(currency, leg1_currency, leg2_currency):
+    if currency == leg1_currency:
+        return 'Leg 1'
+    elif currency == leg2_currency:
+        return 'Leg 2'
+    else:
+        return None  # Currency not found in either leg
