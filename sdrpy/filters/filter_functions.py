@@ -1,6 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date
+import locale
+
+
+
 from sdrpy.utils.util_functions import *
 
 def get_trades (df, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
@@ -21,6 +25,9 @@ def get_trades (df, product="xccy", product_type="Basis", currencies=None, matur
     df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
     if usd_notional_min!=None:
         df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
+    
+    df['Notional amount-Leg 1'] = df['Notional amount-Leg 1'].astype(str).apply(convert_to_floats)
+    df['Notional amount-Leg 2'] = df['Notional amount-Leg 2'].astype(str).apply(convert_to_floats)
     return df
 
 def filter_product(df, product, product_type):
