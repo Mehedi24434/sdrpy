@@ -2,6 +2,18 @@ import re
 import pandas as pd
 import numpy as np
 import math
+import locale
+locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
+def convert_to_floats(x):
+    try:
+        if x[-1]=="+":
+            return locale.atoi(x[:-1])
+        elif x=="nan":
+            return np.nan
+        else:       
+            return locale.atoi(x)
+    except:
+        return np.nan
 
 def filter_by_currency(df, *currencies):
     """
@@ -106,7 +118,7 @@ def conversion_rate(currency: str):
         return 1
 
     else:
-        conversion_df = pd.read_csv("./currency_conversion.csv", index_col=0)
+        conversion_df = pd.read_csv("sdrpy/data/currency_conversion.csv", index_col=0)
         try:
             rate = conversion_df.loc[currency]["conversion_rates"]
         except:
@@ -115,21 +127,17 @@ def conversion_rate(currency: str):
         return rate
     
 def calculate_usd_notional(row):
-            
-    if type(row['Notional currency-Leg 1']) == str:
+    if row['Notional currency-Leg 1'] != row['Notional currency-Leg 1']:
+        usd_notional_leg1 = 0
+    else:
         rate1 = conversion_rate(row['Notional currency-Leg 1'])
-        usd_notional_leg1 = (row['Notional amount-Leg 1 mm'] * 1000000) / rate1
+        usd_notional_leg1 = (row['Notional amount-Leg 1 mm']*1000000) / rate1
+
+    if row['Notional currency-Leg 2'] != row['Notional currency-Leg 2']:
+        usd_notional_leg2 = 0
     else:
-        usd_notional_leg1 = np.nan
-    
-    
-    if type(row['Notional currency-Leg 2']) == str:
         rate2 = conversion_rate(row['Notional currency-Leg 2'])
-        usd_notional_leg2 = (row['Notional amount-Leg 2 mm'] * 1000000) / rate2
-    else:
-        usd_notional_leg2 = np.nan
-    
-    
+        usd_notional_leg2 = (row['Notional amount-Leg 2 mm']*1000000) / rate2
     return pd.Series({'USD_notional_leg1': usd_notional_leg1, 'USD_notional_leg2': usd_notional_leg2})
 
 
@@ -140,3 +148,9 @@ def find_leg(currency, leg1_currency, leg2_currency):
         return 'Leg 2'
     else:
         return None  # Currency not found in either leg
+
+def matching_trades(df, trade_id):
+    trade = df.loc[df['_id']==trade_id]
+    maturity_df = df.loc[df['Expiration Date']==trade['Expiration Date'].values[0]]
+    coupon_df = maturity_df.loc[(df['Fixed rate-Leg 1']==trade['Fixed rate-Leg 1'].values[0]) | (df['Fixed rate-Leg 2']==trade['Fixed rate-Leg 2'].values[0])]
+    return coupon_df

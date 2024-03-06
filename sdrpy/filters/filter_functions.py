@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date
-from sdrpy.data.data_module import *
+import locale
 from sdrpy.utils.util_functions import *
 
 def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
@@ -22,15 +22,14 @@ def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, 
     if date_range!=None:
         df = filter_date_range(df, date_range)
     if dv01_min!=None:
-        df=df[df["dv01"]>=dv01_min]
-    try:
-        df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
-        if usd_notional_min!=None:
-            df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
-        return df
-    except:
-        print(f"dataframe not found with these conditions")
+        df=df[df["dv01"]>=dv01_min]    
+    df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+    if usd_notional_min!=None:
+        df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
     
+    df['Notional amount-Leg 1'] = df['Notional amount-Leg 1'].astype(str).apply(convert_to_floats)
+    df['Notional amount-Leg 2'] = df['Notional amount-Leg 2'].astype(str).apply(convert_to_floats)
+    return df
 
 def filter_product(df, product, product_type):
     product_name_map = pd.read_csv('./sdrpy/data/product_name_map.csv', index_col=0)
