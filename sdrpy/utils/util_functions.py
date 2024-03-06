@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+import numpy as np
+import math
 
 def filter_by_currency(df, *currencies):
     """
@@ -75,7 +77,7 @@ def custom_merge(left, right, on, how='inner'):
   return merged_df
 
 
-def total_req_duration(df, date_range):
+def total_req_duration(date_range):
     duration= date_range[-1]
     if duration=="d":
         mult=1
@@ -96,19 +98,40 @@ def total_req_duration(df, date_range):
 def conversion_rate(currency: str):
     if currency == "CLF":
         return 0.026
+    if currency == "MXV":
+        return 2.1
+    if currency =="COU":
+        return 2735334504056501
     if currency == "USD":
         return 1
+
     else:
         conversion_df = pd.read_csv("./currency_conversion.csv", index_col=0)
-        rate = conversion_df.loc[currency]["conversion_rates"]
+        try:
+            rate = conversion_df.loc[currency]["conversion_rates"]
+        except:
+            rate=np.nan
+            print(f"we couldn't convert {currency} to USD, Please inform this to the developer")
         return rate
     
 def calculate_usd_notional(row):
-    rate1 = conversion_rate(row['Notional currency-Leg 1'])
-    rate2 = conversion_rate(row['Notional currency-Leg 2'])
-    usd_notional_leg1 = (row['Notional amount-Leg 1 mm']*1000000) / rate1
-    usd_notional_leg2 = (row['Notional amount-Leg 2 mm']*1000000) / rate2
+            
+    if type(row['Notional currency-Leg 1']) == str:
+        rate1 = conversion_rate(row['Notional currency-Leg 1'])
+        usd_notional_leg1 = (row['Notional amount-Leg 1 mm'] * 1000000) / rate1
+    else:
+        usd_notional_leg1 = np.nan
+    
+    
+    if type(row['Notional currency-Leg 2']) == str:
+        rate2 = conversion_rate(row['Notional currency-Leg 2'])
+        usd_notional_leg2 = (row['Notional amount-Leg 2 mm'] * 1000000) / rate2
+    else:
+        usd_notional_leg2 = np.nan
+    
+    
     return pd.Series({'USD_notional_leg1': usd_notional_leg1, 'USD_notional_leg2': usd_notional_leg2})
+
 
 def find_leg(currency, leg1_currency, leg2_currency):
     if currency == leg1_currency:

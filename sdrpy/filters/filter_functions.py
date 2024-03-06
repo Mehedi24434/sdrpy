@@ -1,9 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date
+from sdrpy.data.data_module import *
 from sdrpy.utils.util_functions import *
 
-def get_trades (df, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
+def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
+    
+    if df is None:
+        df=get_data(product,product_type,date_range=date_range)
+    
     if currencies != None :
       
         df = filter_by_currency(df, currencies)
@@ -18,10 +23,14 @@ def get_trades (df, product="xccy", product_type="Basis", currencies=None, matur
         df = filter_date_range(df, date_range)
     if dv01_min!=None:
         df=df[df["dv01"]>=dv01_min]
-    df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
-    if usd_notional_min!=None:
-        df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
-    return df
+    try:
+        df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+        if usd_notional_min!=None:
+            df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
+        return df
+    except:
+        print(f"dataframe not found with these conditions")
+    
 
 def filter_product(df, product, product_type):
     product_name_map = pd.read_csv('./sdrpy/data/product_name_map.csv', index_col=0)
@@ -83,7 +92,7 @@ def filter_maturity(df, maturity_conditions):
 
 
 def filter_date_range(df, date_range):
-    duration = total_req_duration(df,date_range)
+    duration = total_req_duration(date_range)
     df = df.loc[:, ~df.columns.duplicated()] ###remove previously duplecated columns
     today = date.today()
     df["Date"] = pd.to_datetime(df["Date"])
