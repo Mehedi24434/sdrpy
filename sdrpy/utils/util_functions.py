@@ -2,7 +2,6 @@ import re
 import pandas as pd
 import numpy as np
 import math
-
 import locale
 locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
 def convert_to_floats(x):
@@ -90,7 +89,7 @@ def custom_merge(left, right, on, how='inner'):
   return merged_df
 
 
-def total_req_duration(df, date_range):
+def total_req_duration(date_range):
     duration= date_range[-1]
     if duration=="d":
         mult=1
@@ -111,11 +110,20 @@ def total_req_duration(df, date_range):
 def conversion_rate(currency: str):
     if currency == "CLF":
         return 0.026
+    if currency == "MXV":
+        return 2.1
+    if currency =="COU":
+        return 2735334504056501
     if currency == "USD":
         return 1
+
     else:
         conversion_df = pd.read_csv("sdrpy/data/currency_conversion.csv", index_col=0)
-        rate = conversion_df.loc[currency]["conversion_rates"]
+        try:
+            rate = conversion_df.loc[currency]["conversion_rates"]
+        except:
+            rate=np.nan
+            print(f"we couldn't convert {currency} to USD, Please inform this to the developer")
         return rate
     
 def calculate_usd_notional(row):
@@ -131,6 +139,7 @@ def calculate_usd_notional(row):
         rate2 = conversion_rate(row['Notional currency-Leg 2'])
         usd_notional_leg2 = (row['Notional amount-Leg 2 mm']*1000000) / rate2
     return pd.Series({'USD_notional_leg1': usd_notional_leg1, 'USD_notional_leg2': usd_notional_leg2})
+
 
 def find_leg(currency, leg1_currency, leg2_currency):
     if currency == leg1_currency:
