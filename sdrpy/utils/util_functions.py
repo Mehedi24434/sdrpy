@@ -150,7 +150,10 @@ def find_leg(currency, leg1_currency, leg2_currency):
         return None  # Currency not found in either leg
 
 def matching_trades(df, trade_id):
-    trade = df.loc[df['_id']==trade_id]
+    trade = df.loc[df['_id'].astype(str)==trade_id]
     maturity_df = df.loc[df['Expiration Date']==trade['Expiration Date'].values[0]]
     coupon_df = maturity_df.loc[(df['Fixed rate-Leg 1']==trade['Fixed rate-Leg 1'].values[0]) | (df['Fixed rate-Leg 2']==trade['Fixed rate-Leg 2'].values[0])]
     return coupon_df
+
+def filter_currency(df, currency):
+    return df[(df["Notional currency-Leg 1"] == currency[0]) | (df["Notional currency-Leg 2"] == currency[0])]
