@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from datetime import date
 import locale
 from sdrpy.utils.util_functions import *
+from sdrpy.data.data_module import get_data
 
 def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
     
@@ -23,7 +24,10 @@ def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, 
         df = filter_date_range(df, date_range)
     if dv01_min!=None:
         df=df[df["dv01"]>=dv01_min]    
-    df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+    try:
+        df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+    except:
+        print("couldn't find any dataframe with these criteria")
     if usd_notional_min!=None:
         df = df[(df["USD_notional_leg1"] >= usd_notional_min) & (df["USD_notional_leg2"] >= usd_notional_min)]
     
