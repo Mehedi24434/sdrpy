@@ -1,9 +1,14 @@
 import re
+import os
 import pandas as pd
+from datetime import date
 import numpy as np
 import math
 import locale
+from sdrpy.utils.usd_conversion import currency_rate_updater
 locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
+
+today = date.today()
 def convert_to_floats(x):
     try:
         if x[-1]=="+":
@@ -118,7 +123,11 @@ def conversion_rate(currency: str):
         return 1
 
     else:
-        conversion_df = pd.read_csv("sdrpy/data/currency_conversion.csv", index_col=0)
+        if os.path.exists(f"sdrpy/data/currency_conversion_for_{today}.csv"):
+            conversion_df = pd.read_csv(f"sdrpy/data/currency_conversion_for_{today}.csv", index_col=0)
+        else:
+            currency_rate_updater()
+            conversion_df = pd.read_csv(f"sdrpy/data/currency_conversion_for_{today}.csv", index_col=0)
         try:
             rate = conversion_df.loc[currency]["conversion_rates"]
         except:

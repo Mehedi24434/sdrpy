@@ -1,18 +1,20 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from datetime import date
 import locale
 from sdrpy.utils.util_functions import *
 from sdrpy.data.data_module import get_data
 
-def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
+def get_trades (df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
     
     if df is None:
         df=get_data(product,product_type,date_range=date_range)
     
+    if currency != None :
+        df = filter_by_currency(df, currency)
+
     if currencies != None :
-      
-        df = filter_by_currency(df, currencies)
+        df = filter_by_currency(df, *currencies)
        
  
     if product!=None or product_type!=None:
@@ -104,30 +106,5 @@ def filter_date_range(df, date_range):
     df=df[df["Day_diff"]<=pd.Timedelta(days=duration)]
     return df
 
-def plot_notional_comparison(df,currencies):
-    main_df=df
-    if currencies != None :
-      
-        df = filter_by_currency(df, currencies)
-    avg=main_df["USD_notional_leg1"].sum()/len(main_df["USD_notional_leg1"])
-    notional_values = []
 
-    # Assuming you have a DataFrame 'df' containing your data
-    for index, row in df.iterrows():
-        currency = currencies  # Specify the currency you want to search for
-        leg = find_leg(currency, row['Notional currency-Leg 1'], row['Notional currency-Leg 2'])
-        if leg == 'Leg 1':
-            notional_values.append(row['USD_notional_leg1'])
-        elif leg == 'Leg 2':
-            notional_values.append(row['USD_notional_leg2'])
-    
-   
-    # Plotting
-    plt.bar(range(len(notional_values)), notional_values, color='blue', label=f'{currencies} Notional')
-    plt.axhline(y=avg, color='red', linestyle='--', label='Average Notional')
-    plt.xlabel('Data Points')
-    plt.ylabel('Value')
-    plt.title('Comparison of Values to Average')
-    plt.legend()
-    plt.show()
     
