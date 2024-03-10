@@ -2,8 +2,11 @@ import re
 import pandas as pd
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+
 import locale
 locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
+
 def convert_to_floats(x):
     try:
         if x[-1]=="+":
@@ -157,3 +160,27 @@ def matching_trades(df, trade_id):
 
 def filter_currency(df, currency):
     return df[(df["Notional currency-Leg 1"] == currency[0]) | (df["Notional currency-Leg 2"] == currency[0])]
+
+def currency_trades_plot(df):
+    # Define colors for each currency
+    colors = ['skyblue', 'lightcoral', 'lightgreen', 'gold', 'orange', 'purple', 'pink', 'red', 'teal', 'brown']
+
+    # Create the figure and subplots
+    fig, ax1 = plt.subplots(figsize=(14, 5))
+    ax2 = ax1.twinx()
+
+    # Plot No of Contracts on the left axis (ax1)
+    ax1.bar(df.index, df['No of Contracts'], color=colors, label='No of Contracts')
+    ax1.set_xlabel('Currency')
+    ax1.set_ylabel('No of Contracts traded')
+    ax1.tick_params(axis='y')  # Only display ticks on the left y-axis
+
+    # Plot USD Notional on the right axis (ax2)
+    ax2.plot(df.index, df['USD Amount'] / 1e10, label='USD Notional (in bllions)')  # Normalize for better readability
+    ax2.set_ylabel('USD Notional (billions)')
+    ax2.tick_params(axis='y')  # Only display ticks on the right y-axis
+
+    # Customize the plot
+    plt.title('No of Contracts traded vs. USD Notional (billions) by Currency')
+    plt.xticks(df.index, df.index, rotation=4)
+    plt.show()
