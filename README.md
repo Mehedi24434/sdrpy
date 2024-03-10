@@ -12,7 +12,7 @@
 
 **Main Functions:**
 
-`get_trades(df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d", dv01_min=None, usd_notional_min=None)`
+**`get_trades(df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d", dv01_min=None, usd_notional_min=None)`**
 
 - Retrieves trades based on specified filtering criteria.
 - **Parameters:**
