@@ -2,7 +2,10 @@ from pymongo import MongoClient
 import pandas as pd
 from sdrpy.utils.util_functions import *
 from datetime import date
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+key = os.getenv('KEY')
 
 def get_data(product="xccy", product_type="Basis", date_range="-13d"):
 
@@ -16,7 +19,7 @@ def get_data(product="xccy", product_type="Basis", date_range="-13d"):
         
 
     # Connect to MongoDB
-    client = MongoClient('mongodb://root:Anchorblock443215@13.233.125.116:27019,3.110.156.25:27018/?retryWrites=true&replicaSet=myReplicaSet&readPreference=secondary')  
+    client = MongoClient(key)  
 
     # Access the desired database and collection
     db = client['dtcc-cftc-data']  # Replace 'your_database_name' with the name of your database

@@ -1,18 +1,20 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from datetime import date
 import locale
 from sdrpy.utils.util_functions import *
 from sdrpy.data.data_module import get_data
 
-def get_trades (df=None, product="xccy", product_type="Basis", currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
+def get_trades (df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d",dv01_min=None, usd_notional_min=None):
     
     if df is None:
         df=get_data(product,product_type,date_range=date_range)
     
+    if currency != None :
+        df = filter_by_currency(df, currency)
+
     if currencies != None :
-      
-        df = filter_by_currency(df, currencies)
+        df = filter_by_currency(df, *currencies)
        
  
     if product!=None or product_type!=None:
@@ -119,7 +121,6 @@ def plot_notional_comparison(df,currencies):
             notional_values[row['Event timestamp']] = row['USD_notional_leg1']
         elif leg == 'Leg 2':
             notional_values[row['Event timestamp']] = row['USD_notional_leg2']
-    
     return notional_values, avg
 
 def plot_notional_values_time(df, currencies):
