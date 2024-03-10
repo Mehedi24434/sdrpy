@@ -106,5 +106,41 @@ def filter_date_range(df, date_range):
     df=df[df["Day_diff"]<=pd.Timedelta(days=duration)]
     return df
 
+def plot_notional_comparison(df,currencies):
+    main_df=df
+    if currencies != None :
+      df = filter_by_currency(df, currencies)
+    avg=main_df["USD_notional_leg1"].sum()/len(main_df["USD_notional_leg1"])
+    notional_values = pd.Series()
 
-    
+    # Assuming you have a DataFrame 'df' containing your data
+    for index, row in df.iterrows():
+        currency = currencies  # Specify the currency you want to search for
+        leg = find_leg(currency, row['Notional currency-Leg 1'], row['Notional currency-Leg 2'])
+        if leg == 'Leg 1':
+            notional_values[row['Event timestamp']] = row['USD_notional_leg1']
+        elif leg == 'Leg 2':
+            notional_values[row['Event timestamp']] = row['USD_notional_leg2']
+    return notional_values, avg
+
+def plot_notional_values_time(df, currencies):
+  notional_values, avg = plot_notional_comparison(df, currencies)
+  notional_values.index = pd.to_datetime(notional_values.index, format='ISO8601')
+  # Assuming notional_values is a pandas Series with timestamps as index
+  # and avg is the average value
+  fig, ax = plt.subplots(figsize=(16, 6))
+
+  # Create the bar plot
+  ax.bar(notional_values.index, notional_values, color='blue', width=0.0006, alpha=0.7, label=f'{currencies} Notional') 
+  #plt.bar(notional_values.index, notional_values, color='blue', alpha=0.7, label=f'EUR Notional')
+
+  # Plot the average line with minimal label
+  plt.axhline(y=avg, color='red', linestyle='--', label='Average Notional for all currencies')
+  plt.yscale("log")  
+  # Set x-axis labels with minimal formatting
+  plt.xlabel('Time')
+  plt.ylabel('Notional value (USD) Log-scale')
+  plt.title(f'USD Notional value of trades over time for currency {currencies}')
+  plt.legend()
+  plt.tight_layout()  # Adjust layout for better spacing
+  plt.show()

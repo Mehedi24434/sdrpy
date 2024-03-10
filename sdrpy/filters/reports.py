@@ -1,5 +1,6 @@
 import pandas as pd
 from sdrpy.utils.util_functions import *
+from sdrpy.filters.filter_functions import plot_notional_values_time
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
@@ -54,7 +55,7 @@ def traded_currency(xdf):
 
 def findall_matching_trades(df, currency=None):
     if currency!=None:
-        df = filter_currency(df, currency)
+        df = filter_currency(df, [currency])
     done_ids = []
     matched_ids = {}
     for id in df["_id"].astype(str):
@@ -63,7 +64,7 @@ def findall_matching_trades(df, currency=None):
             if len(matches)>1:
                 done_ids.append(list(matches['_id'].astype(str).values))
                 mc = matches[['Product name', 'Notional currency-Leg 1', 'Notional currency-Leg 2', 'maturity', 'Effective Date', 'Fixed rate-Leg 1',
- 'Fixed rate-Leg 2',  'Event type', 'Event timestamp',]].iloc[0]
+ 'Fixed rate-Leg 2',  'Event type', 'Event timestamp']].iloc[0]
                 mc['num_matches'] = len(matches)
                 matched_ids[str(id)] = mc
     return pd.DataFrame.from_dict(matched_ids, orient='index').sort_values(by=['num_matches'], ascending=False)
@@ -109,7 +110,16 @@ The main report function;
 """
 def daily_report(df, num_curr=3):
     tdc = traded_currency(df)
+
+    # Account for missing USD notional
+    try:
+        df[['USD_notional_leg1', 'USD_notional_leg2']] = df.apply(calculate_usd_notional, axis=1)
+    except:
+        print("couldn't find any dataframe with these criteria")
+    currency_trades_plot(tdc.head(10))
     for curr in list(tdc.index)[:num_curr]:
+        print_header(f'Notionals of {curr} trades over timeframe')
+        plot_notional_values_time(df, curr)
         print_header(f'Largest 10 trades {curr}')
         cdf = filter_currency(df, [curr])
         large = findall_large_trades(cdf)
@@ -118,11 +128,13 @@ def daily_report(df, num_curr=3):
 
         print_header(f'Notional size vs maturity {curr}')
         plot_total_notional_by_maturity(cdf)
-
-        matches = findall_matching_trades(cdf, None)
-        table = tabulate(matches, headers="keys", tablefmt="pretty")
-        print_header(f'Matching trades {curr}')
-        print(table)
+        try:
+            matches = findall_matching_trades(cdf, None)
+            table = tabulate(matches, headers="keys", tablefmt="pretty")
+            print_header(f'Matching trades {curr}')
+            print(table)
+        except:
+            pass
         print("")
 
 def print_header(header_text):
