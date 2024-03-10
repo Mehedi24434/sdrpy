@@ -1,3 +1,11 @@
 Metadata-Version: 2.1
 Name: sdrpy
-Version: 0.0.0
+Version: 0.1.0
+Summary: Simple analytics for dtcc data
+Author: Anchorblock
+Author-email: qavi@anchorblock.vc
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: tabulate
+Requires-Dist: python-dotenv

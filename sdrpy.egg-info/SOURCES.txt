@@ -4,10 +4,15 @@ sdrpy/__init__.py
 sdrpy.egg-info/PKG-INFO
 sdrpy.egg-info/SOURCES.txt
 sdrpy.egg-info/dependency_links.txt
+sdrpy.egg-info/requires.txt
 sdrpy.egg-info/top_level.txt
 sdrpy/data/__init__.py
+sdrpy/data/data_module.py
 sdrpy/filters/__init__.py
 sdrpy/filters/filter_functions.py
+sdrpy/filters/reports.py
 sdrpy/plotting/__init__.py
+sdrpy/plotting/plot.py
 sdrpy/utils/__init__.py
+sdrpy/utils/usd_conversion.py
 sdrpy/utils/util_functions.py
