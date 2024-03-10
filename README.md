@@ -12,7 +12,7 @@
 
 **Main Functions:**
 
-** `get_trades(df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d", dv01_min=None, usd_notional_min=None)`**
+`get_trades(df=None, product="xccy", product_type="Basis", currency=None, currencies=None, maturity="m>3", date_range="-1d", dv01_min=None, usd_notional_min=None)`
 
 - Retrieves trades based on specified filtering criteria.
 - **Parameters:**
@@ -27,7 +27,7 @@
   - `usd_notional_min`: (optional) Minimum USD notional threshold.
 - **Returns:** DataFrame containing filtered trades.
 
-** `daily_report(df, num_curr=3)`**
+**`daily_report(df, num_curr=3)`**
 
 - Generates a currency-wise daily report based on provided trade data.
 - **Parameters:**
