@@ -1,7 +1,6 @@
 import pandas as pd
 
 from datetime import date
-import locale
 from sdrpy.utils.util_functions import *
 from sdrpy.data.data_module import get_data
 

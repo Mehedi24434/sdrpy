@@ -108,6 +108,7 @@ The main report function;
 1. Currency-wise number of trades breakdown table
 2. For top3 currencies: [findall_large_trades, plot_notionals_hourly, plot_notionals_maturity, findall_matching_trades]
 """
+
 def daily_report(df, num_curr=3):
     tdc = traded_currency(df)
 
