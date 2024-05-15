@@ -124,8 +124,11 @@ plot_notional_comparison(US_df, currency = "USD")
 ![Alt text](https://github.com/anchorblock/sdrpy/blob/main/notional_comp1.png)
 
 
-
-
+```python
+from sdrpy.plotting.plot import plot_notional_comparison
+plot_notional_comparison(df1,currencies=("USD","PEN","CAD","TRY"))
+```
+![Alt text](https://github.com/anchorblock/sdrpy/blob/main/notional_comp2.png)
 
 
 
